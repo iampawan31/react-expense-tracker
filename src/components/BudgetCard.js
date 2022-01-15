@@ -1,7 +1,7 @@
 import { Card, ProgressBar, Stack, Button } from 'react-bootstrap'
 import { currencyFormatter } from '../utils'
 
-const BudgetCard = ({ name, amount, max, gray }) => {
+const BudgetCard = ({ name, amount, max, gray, onAddExpenseClick }) => {
   const classNames = []
 
   if (amount > max) {
@@ -40,7 +40,7 @@ const BudgetCard = ({ name, amount, max, gray }) => {
           <Button
             variant="outline-success"
             className="ms-auto"
-            onClick={() => console.log('Primary')}
+            onClick={onAddExpenseClick}
           >
             Add Expense
           </Button>
