@@ -1,8 +1,8 @@
 import { useRef } from 'react'
-import { Modal, Button, Form } from 'react-bootstrap'
+import { Modal, Button, Form, Stack } from 'react-bootstrap'
 import { useBudgets, UNCATEGORIZED_BUDGET_ID } from '../contexts/BudgetContext'
 
-const AddExpenseModal = ({ show, handleClose, defaultBudgetId }) => {
+const AddExpenseModal = ({ budget, show, handleClose, defaultBudgetId }) => {
   const descriptionRef = useRef()
   const amountRef = useRef()
   const budgetIdRef = useRef()
@@ -24,7 +24,11 @@ const AddExpenseModal = ({ show, handleClose, defaultBudgetId }) => {
     <Modal centered show={show} onHide={handleClose}>
       <Form onSubmit={handleSubmit}>
         <Modal.Header closeButton>
-          <Modal.Title>New Expense</Modal.Title>
+          <Modal.Title>
+            <Stack direction="horizontal" gap={2}>
+              <div>Expenses - {budget.name}</div>
+            </Stack>
+          </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form.Group controlId="description">
