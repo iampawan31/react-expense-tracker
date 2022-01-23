@@ -1,82 +1,60 @@
-import { useRef } from 'react'
-import { Modal, Button, Form, Stack } from 'react-bootstrap'
+import { Modal, Button, Stack } from 'react-bootstrap'
 import { useBudgets, UNCATEGORIZED_BUDGET_ID } from '../contexts/BudgetContext'
+import { currencyFormatter } from '../utils'
 
-const AddExpenseModal = ({ budget, show, handleClose, defaultBudgetId }) => {
-  const descriptionRef = useRef()
-  const amountRef = useRef()
-  const budgetIdRef = useRef()
-  const { addExpense, budgets } = useBudgets()
+const ViewExpensesModal = ({ budgetId, handleClose }) => {
+  const { budgets, deleteBudget, getBudgetExpenses, deleteExpense } =
+    useBudgets()
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
+  const expenses = getBudgetExpenses(budgetId)
 
-    addExpense({
-      description: descriptionRef.current.value,
-      amount: parseFloat(amountRef.current.value),
-      budgetId: budgetIdRef.current.value,
-    })
-
-    handleClose()
-  }
+  const budget =
+    UNCATEGORIZED_BUDGET_ID === budgetId
+      ? { name: 'Uncategorized', id: UNCATEGORIZED_BUDGET_ID }
+      : budgets.find((budget) => budget.id === budgetId)
 
   return (
-    <Modal centered show={show} onHide={handleClose}>
-      <Form onSubmit={handleSubmit}>
-        <Modal.Header closeButton>
-          <Modal.Title>
-            <Stack direction="horizontal" gap={2}>
-              <div>Expenses - {budget.name}</div>
-            </Stack>
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form.Group controlId="description">
-            <Form.Label>Description</Form.Label>
-            <Form.Control ref={descriptionRef} type="text" required />
-          </Form.Group>
-          <Form.Group controlId="amount">
-            <Form.Label>Amount</Form.Label>
-            <Form.Control
-              ref={amountRef}
-              type="number"
-              required
-              min={0}
-              step={0.01}
-            />
-          </Form.Group>
-          <Form.Group controlId="budgetId">
-            <Form.Label>Budget</Form.Label>
-            <Form.Select
-              defaultValue={defaultBudgetId}
-              ref={budgetIdRef}
-              required
-            >
-              <option
-                key={UNCATEGORIZED_BUDGET_ID}
-                value={UNCATEGORIZED_BUDGET_ID}
+    <Modal centered show={budgetId !== null} onHide={handleClose}>
+      <Modal.Header closeButton>
+        <Modal.Title>Expenses - {budget?.name}</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <Stack gap={3}>
+          {expenses.map((expense) => (
+            <Stack direction="horizontal" gap={2} key={expense.id}>
+              <div className="me-auto fs-4">{expense.description}</div>
+              <div className="fs-5">
+                {currencyFormatter.format(expense.amount)}
+              </div>
+              <Button
+                onClick={() => deleteExpense(expense)}
+                size="sm"
+                variant="outline-danger"
               >
-                Uncategorized
-              </option>
-              {budgets.map((budget) => (
-                <option key={budget.id} value={budget.id}>
-                  {budget.name}
-                </option>
-              ))}
-            </Form.Select>
-          </Form.Group>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="success" type="submit">
-            Add
+                &times;
+              </Button>
+            </Stack>
+          ))}
+        </Stack>
+      </Modal.Body>
+      <Modal.Footer>
+        {budgetId !== UNCATEGORIZED_BUDGET_ID ? (
+          <Button
+            variant="outline-danger"
+            onClick={() => {
+              deleteBudget(budget)
+              handleClose()
+            }}
+          >
+            Delete
           </Button>
-          <Button variant="outline-success" onClick={handleClose}>
-            Cancel
-          </Button>
-        </Modal.Footer>
-      </Form>
+        ) : null}
+        <Button variant="outline-success" onClick={handleClose}>
+          Cancel
+        </Button>
+      </Modal.Footer>
     </Modal>
   )
 }
 
-export default AddExpenseModal
+export default ViewExpensesModal
